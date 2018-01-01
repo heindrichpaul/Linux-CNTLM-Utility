@@ -30,6 +30,11 @@ func main() {
 	if err != nil {
 		log.Fatalln("An error occured during cntlm config update")
 	}
+
+	err = restartCntlm()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func credentials() (domain string, username string, password string) {
@@ -185,5 +190,20 @@ func writable(path string) error {
 }
 
 func restartCntlm() error {
+	cmdName := "systemctl"
+	cmdArgs := []string{"restart", "cntlm"}
+
+	cmd := exec.Command(cmdName, cmdArgs...)
+
+	err = cmd.Start()
+	if err != nil {
+		log.Fatalln("Error restarting cntlm", err)
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		log.Fatalln("Error waiting Cmd", err)
+	}
+
 	return nil
 }
