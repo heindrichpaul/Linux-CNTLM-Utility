@@ -50,6 +50,10 @@ func setUpUtility() (filename string, useClearTextPassword bool, err error) {
 
 	useClearTextPassword = false
 
+	if os.Geteuid() != 0 {
+		log.Fatalln("You need to run the command using sudo")
+	}
+
 	fmt.Printf("Enter path to cntlm config file (/etc/cntlm.conf): ")
 	filename, err = reader.ReadString('\n')
 	if err != nil {
