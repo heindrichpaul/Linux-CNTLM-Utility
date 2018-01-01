@@ -232,6 +232,7 @@ func isFileReadyToBeWrittenTo(path string) error {
 }
 
 func createCredentials(username, domain, password string, useClearTextPassword bool) *Credentials {
+
 	credentials := Credentials{}
 	credentials.Username = username
 	credentials.Domain = domain
