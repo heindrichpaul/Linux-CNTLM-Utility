@@ -13,20 +13,26 @@ import (
 	"syscall"
 )
 
+type Credentials struct {
+	Username             string
+	Password             string
+	PasswordHashes       []string
+	Domain               string
+	useClearTextPassword bool
+}
+
 func main() {
+
 	filename, useClearTextPassword, err := setUpUtility()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	domain, username, password := credentials()
+	domain, username, password := getCredentials()
 
-	hashes, err := createCntlmHashes(domain, username, password)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	credentials := createCredentials(username, domain, password, useClearTextPassword)
 
-	err = updateCntlmConfig(filename, domain, username, password, hashes, useClearTextPassword)
+	err = updateCntlmConfig(filename, credentials)
 	if err != nil {
 		log.Fatalln("An error occured during cntlm config update")
 	}
@@ -35,9 +41,46 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 }
 
-func credentials() (domain string, username string, password string) {
+func setUpUtility() (filename string, useClearTextPassword bool, err error) {
+
+	reader := bufio.NewReader(os.Stdin)
+
+	useClearTextPassword = false
+
+	fmt.Printf("Enter path to cntlm config file (/etc/cntlm.conf): ")
+	filename, err = reader.ReadString('\n')
+	if err != nil {
+		return "", false, err
+	}
+
+	filename = strings.TrimSpace(filename)
+
+	if len(filename) < 1 {
+		filename = "/etc/cntlm.conf"
+	}
+
+	err = isFileReadyToBeWrittenTo(filename)
+
+	fmt.Printf("Did you want to save your password in clear text in the configuration file (y/N): ")
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	response = strings.TrimSpace(response)
+
+	if strings.EqualFold(response, "Y") {
+		useClearTextPassword = true
+	}
+
+	return
+}
+
+func getCredentials() (domain string, username string, password string) {
+
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Printf("Enter Username: ")
@@ -92,6 +135,7 @@ func credentials() (domain string, username string, password string) {
 }
 
 func createCntlmHashes(domain, username, password string) (hashes []string, err error) {
+
 	cmdName := "cntlm"
 	cmdArgs := []string{"-H", "-d", domain, "-u", username, "-p", password}
 
@@ -128,7 +172,7 @@ func createCntlmHashes(domain, username, password string) (hashes []string, err 
 	return hashes, nil
 }
 
-func updateCntlmConfig(filename, domain, username, password string, hashes []string, useClearTextPassword bool) error {
+func updateCntlmConfig(filename string, credentials *Credentials) error {
 
 	input, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -138,28 +182,7 @@ func updateCntlmConfig(filename, domain, username, password string, hashes []str
 	lines := strings.Split(string(input), "\n")
 
 	for i, line := range lines {
-		if strings.Contains(line, "Username") && !strings.Contains(strings.Fields(line)[1], username) {
-			lines[i] = fmt.Sprintf("Username    %s", username)
-		} else if strings.Contains(line, "Domain") && !strings.Contains(strings.Fields(line)[1], domain) {
-			lines[i] = fmt.Sprintf("Domain    %s", domain)
-		} else if strings.Contains(line, "PassLM") && !useClearTextPassword {
-			lines[i] = hashes[0]
-		} else if strings.Contains(line, "PassLM") && useClearTextPassword {
-			lines[i] = "#" + line
-		} else if strings.Contains(line, "PassNTLMv2") && !useClearTextPassword {
-			lines[i] = hashes[2]
-		} else if strings.Contains(line, "PassNTLMv2") && useClearTextPassword {
-			lines[i] = "#" + line
-		} else if strings.Contains(line, "PassNT") && useClearTextPassword {
-			lines[i] = "#" + line
-		} else if strings.Contains(line, "PassNT") && !useClearTextPassword {
-			lines[i] = hashes[1]
-		} else if strings.Contains(line, "Password") && !useClearTextPassword {
-			lines[i] = fmt.Sprintf("#Password CLEARTEXT PASSWORD HAS BEEN REMOVED")
-		} else if strings.Contains(line, "Password") && useClearTextPassword {
-			lines[i] = fmt.Sprintf("Password    %s", password)
-		}
-
+		lines[i] = replaceIfNeeded(line, credentials)
 	}
 	output := strings.Join(lines, "\n")
 	err = ioutil.WriteFile(filename, []byte(output), 0644)
@@ -169,56 +192,8 @@ func updateCntlmConfig(filename, domain, username, password string, hashes []str
 	return nil
 }
 
-func setUpUtility() (filename string, useClearTextPassword bool, err error) {
-	reader := bufio.NewReader(os.Stdin)
-
-	useClearTextPassword = false
-
-	fmt.Printf("Enter path to cntlm config file (/etc/cntlm.conf): ")
-	filename, err = reader.ReadString('\n')
-	if err != nil {
-		return "", false, err
-	}
-
-	filename = strings.TrimSpace(filename)
-
-	if len(filename) < 1 {
-		filename = "/etc/cntlm.conf"
-	}
-
-	err = writable(filename)
-
-	fmt.Printf("Did you want to save your password in clear text in the configuration file (y/N): ")
-	response, err := reader.ReadString('\n')
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	response = strings.TrimSpace(response)
-
-	if strings.EqualFold(response, "Y") {
-		useClearTextPassword = true
-	}
-
-	return
-
-}
-
-func writable(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return fmt.Errorf("The file %s does not exist", path)
-	}
-
-	access := unix.Access(path, unix.W_OK) == nil
-
-	if !access {
-		return fmt.Errorf("This process does not have access to the file %s. Maybe run the command with sudo if it needs root permissions.", path)
-	}
-
-	return nil
-}
-
 func restartCntlm() error {
+
 	cmdName := "systemctl"
 	cmdArgs := []string{"restart", "cntlm"}
 
@@ -239,4 +214,65 @@ func restartCntlm() error {
 	fmt.Printf("Done restarting the cntlm service\n")
 
 	return nil
+}
+
+func isFileReadyToBeWrittenTo(path string) error {
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return fmt.Errorf("The file %s does not exist", path)
+	}
+
+	access := unix.Access(path, unix.W_OK) == nil
+
+	if !access {
+		return fmt.Errorf("This process does not have access to the file %s. Maybe run the command with sudo if it needs root permissions.", path)
+	}
+
+	return nil
+}
+
+func createCredentials(username, domain, password string, useClearTextPassword bool) *Credentials {
+	credentials := Credentials{}
+	credentials.Username = username
+	credentials.Domain = domain
+	credentials.useClearTextPassword = useClearTextPassword
+	if useClearTextPassword {
+		credentials.Password = password
+	} else {
+		hashes, err := createCntlmHashes(domain, username, password)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		credentials.PasswordHashes = hashes
+	}
+	return &credentials
+}
+
+func replaceIfNeeded(line string, credentials *Credentials) (newline string) {
+
+	if strings.Contains(line, "Username") && !strings.Contains(strings.Fields(line)[1], credentials.Username) {
+		newline = fmt.Sprintf("Username    %s", credentials.Username)
+	} else if strings.Contains(line, "Domain") && !strings.Contains(strings.Fields(line)[1], credentials.Domain) {
+		newline = fmt.Sprintf("Domain    %s", credentials.Domain)
+	} else if strings.Contains(line, "PassLM") && credentials.useClearTextPassword == false {
+		newline = credentials.PasswordHashes[0]
+	} else if strings.Contains(line, "PassLM") && credentials.useClearTextPassword == true {
+		newline = "#" + line
+	} else if strings.Contains(line, "PassNTLMv2") && credentials.useClearTextPassword == false {
+		newline = credentials.PasswordHashes[2]
+	} else if strings.Contains(line, "PassNTLMv2") && credentials.useClearTextPassword == true {
+		newline = "#" + line
+	} else if strings.Contains(line, "PassNT") && credentials.useClearTextPassword == true {
+		newline = "#" + line
+	} else if strings.Contains(line, "PassNT") && credentials.useClearTextPassword == false {
+		newline = credentials.PasswordHashes[1]
+	} else if strings.Contains(line, "Password") && credentials.useClearTextPassword == false {
+		newline = fmt.Sprintf("#Password CLEARTEXT PASSWORD HAS BEEN REMOVED")
+	} else if strings.Contains(line, "Password") && credentials.useClearTextPassword == true {
+		newline = fmt.Sprintf("Password    %s", credentials.Password)
+	} else {
+		newline = line
+	}
+
+	return
 }
