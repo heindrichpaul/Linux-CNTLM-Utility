@@ -50,10 +50,6 @@ func setUpUtility() (filename string, useClearTextPassword bool, err error) {
 
 	useClearTextPassword = false
 
-	if os.Geteuid() != 0 {
-		log.Fatalln("You need to run the command using sudo")
-	}
-
 	fmt.Printf("Enter path to cntlm config file (/etc/cntlm.conf): ")
 	filename, err = reader.ReadString('\n')
 	if err != nil {
@@ -152,7 +148,12 @@ func createCntlmHashes(domain, username, password string) (hashes []string, err 
 	scanner := bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
-			hashes = append(hashes, scanner.Text())
+			output := scanner.Text()
+			if strings.Contains(output, "Password:") {
+				continue
+			} else {
+				hashes = append(hashes, output)
+			}
 		}
 	}()
 
@@ -166,12 +167,6 @@ func createCntlmHashes(domain, username, password string) (hashes []string, err 
 
 		log.Fatalln("Error waiting Cmd", err)
 	}
-
-	if len(hashes) != 4 {
-		return nil, fmt.Errorf("There was an error getting the complete output from the Cntlm command")
-	}
-
-	hashes = hashes[1:]
 
 	return hashes, nil
 }
@@ -198,24 +193,30 @@ func updateCntlmConfig(filename string, credentials *Credentials) error {
 
 func restartCntlm() error {
 
-	cmdName := "systemctl"
-	cmdArgs := []string{"restart", "cntlm"}
+	if os.Geteuid() == 0 {
 
-	cmd := exec.Command(cmdName, cmdArgs...)
+		cmdName := "systemctl"
+		cmdArgs := []string{"restart", "cntlm"}
 
-	fmt.Printf("Restarting the cntlm service\n")
+		cmd := exec.Command(cmdName, cmdArgs...)
 
-	err := cmd.Start()
-	if err != nil {
-		log.Fatalln("Error restarting cntlm", err)
+		fmt.Printf("Restarting the cntlm service\n")
+
+		err := cmd.Start()
+		if err != nil {
+			log.Fatalln("Error restarting cntlm", err)
+		}
+
+		err = cmd.Wait()
+		if err != nil {
+			log.Fatalln("Error waiting for the cntlm cmd", err)
+		}
+
+		fmt.Printf("Done restarting the cntlm service\n")
+
+	} else {
+		log.Printf("You have to run the command to restart the cntlm service\n")
 	}
-
-	err = cmd.Wait()
-	if err != nil {
-		log.Fatalln("Error waiting for the cntlm cmd", err)
-	}
-
-	fmt.Printf("Done restarting the cntlm service\n")
 
 	return nil
 }
