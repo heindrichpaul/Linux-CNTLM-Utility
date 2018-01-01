@@ -161,13 +161,17 @@ func updateCntlmConfig(filename, domain, username string, hashes []string) error
 func getCntlmConfig() (filename string, err error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Printf("Enter path to cntlm config file: ")
+	fmt.Printf("Enter path to cntlm config file (/etc/cntlm.conf): ")
 	filename, err = reader.ReadString('\n')
 	if err != nil {
 		return "", err
 	}
 
 	filename = strings.TrimSpace(filename)
+
+	if len(filename) < 1 {
+		filename = "/etc/cntlm.conf"
+	}
 
 	err = writable(filename)
 
@@ -195,6 +199,8 @@ func restartCntlm() error {
 
 	cmd := exec.Command(cmdName, cmdArgs...)
 
+	fmt.Printf("Restarting the cntlm service\n")
+
 	err := cmd.Start()
 	if err != nil {
 		log.Fatalln("Error restarting cntlm", err)
@@ -202,8 +208,10 @@ func restartCntlm() error {
 
 	err = cmd.Wait()
 	if err != nil {
-		log.Fatalln("Error waiting Cmd", err)
+		log.Fatalln("Error waiting for the cntlm cmd", err)
 	}
+
+	fmt.Printf("Done restarting the cntlm service\n")
 
 	return nil
 }
