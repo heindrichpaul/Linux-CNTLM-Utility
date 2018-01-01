@@ -195,7 +195,7 @@ func restartCntlm() error {
 
 	cmd := exec.Command(cmdName, cmdArgs...)
 
-	err = cmd.Start()
+	err := cmd.Start()
 	if err != nil {
 		log.Fatalln("Error restarting cntlm", err)
 	}
