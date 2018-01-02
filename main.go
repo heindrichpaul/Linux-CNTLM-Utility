@@ -120,16 +120,35 @@ func getCredentials() (domain string, username string, password string) {
 
 	}
 
-	fmt.Printf("Enter Password: ")
-	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		log.Fatalln(err)
+	passwordConfirmed := false
+	for passwordConfirmed == false {
+
+		fmt.Printf("Enter New Password: ")
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Printf("\n")
+
+		fmt.Printf("Confirm Password: ")
+		bytePassword2, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Printf("\n")
+
+		password = strings.TrimSpace(string(bytePassword))
+		password2 := strings.TrimSpace(string(bytePassword2))
+
+		if password == password2 {
+			passwordConfirmed = true
+		} else {
+			fmt.Printf("The passwords did not match please enter it again.\n")
+		}
 	}
-	fmt.Printf("\n")
 
 	domain = strings.TrimSpace(domain)
 	username = strings.TrimSpace(username)
-	password = strings.TrimSpace(string(bytePassword))
 
 	return
 }
@@ -215,7 +234,7 @@ func restartCntlm() error {
 		fmt.Printf("Done restarting the cntlm service\n")
 
 	} else {
-		log.Printf("You have to run the command to restart the cntlm service\n")
+		fmt.Printf("You have to run the command to restart the cntlm service\n")
 	}
 
 	return nil
