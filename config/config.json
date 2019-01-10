@@ -1,0 +1,17 @@
+{
+    "cntlmConfigPath":"/etc/cntlm.conf",
+    "passwordProperties":
+        {
+            "useClearTextPassword":false
+        },
+    "profiles":[
+        {
+            "name":"Home",
+            "profileFileLocation":""
+        },
+        {
+            "name":"Office",
+            "profileFileLocation":""
+        }
+    ]
+}
