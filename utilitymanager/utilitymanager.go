@@ -2,9 +2,11 @@ package utilitymanager
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/heindrichpaul/Linux-CNTLM-Utility/domain"
 )
@@ -22,7 +24,18 @@ func NewUtilityManger(config *domain.CntlmConfig) *UtilityManager {
 }
 
 func (z *UtilityManager) SwitchProfile(name string) {
-
+	if z.config.Profiles != nil {
+		for _, profile := range z.config.Profiles {
+			if strings.EqualFold(profile.Name, name) {
+				err := copy(profile.ProfileFileLocation, z.config.CntlmConfigPath)
+				if err != nil {
+					log.Fatalf("An error occured while switching profiles: %s\n", err.Error())
+				}
+				return
+			}
+		}
+		log.Printf("No profile with name %s was found.\n", name)
+	}
 }
 
 func (z *UtilityManager) RestartCntlm() error {
@@ -53,4 +66,34 @@ func (z *UtilityManager) RestartCntlm() error {
 	}
 
 	return nil
+}
+
+func copy(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
+}
+
+func (z *UtilityManager) CreateProfile(name, profileLocationPath string) {
+	profile := domain.Profile{
+		Name:                name,
+		ProfileFileLocation: profileLocationPath,
+	}
+
+	z.config.Profiles = append(z.config.Profiles, profile)
+	z.config.SaveConfig()
 }

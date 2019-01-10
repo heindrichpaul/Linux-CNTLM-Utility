@@ -2,6 +2,8 @@ package domain
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"os"
 )
 
@@ -44,6 +46,19 @@ func LoadJSON(path string) (*CntlmConfig, error) {
 	}
 
 	return &config, err
+}
+
+func (config *CntlmConfig) SaveConfig() error {
+	configPath := os.Getenv("CNTLM_UTILITY_CONFIG_PATH")
+	if len(configPath) == 0 {
+		configPath = fmt.Sprintf("%s/.cntlm/config.json", os.Getenv("HOME"))
+	}
+
+	err := SaveJSON(configPath, config)
+	if err != nil {
+		log.Fatalf("an error occured while saving the config: %s", err.Error())
+	}
+	return err
 }
 
 func SaveJSON(path string, config *CntlmConfig) error {

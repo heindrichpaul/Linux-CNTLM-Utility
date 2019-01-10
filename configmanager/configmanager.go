@@ -42,7 +42,21 @@ func replaceIfNeeded(line string, credentials *credentialmanager.Credentials) (n
 	return
 }
 
-func UpdateCntlmConfig(filename string, credentials *credentialmanager.Credentials) error {
+func UpdateCntlmConfig(config *domain.CntlmConfig, credentials *credentialmanager.Credentials) error {
+	err := updateCntlmConfig(config.CntlmConfigPath, credentials)
+	if err != nil {
+		return err
+	}
+	if config.Profiles != nil {
+		for _, profile := range config.Profiles {
+			err = updateCntlmConfig(profile.ProfileFileLocation, credentials)
+			return err
+		}
+	}
+	return err
+}
+
+func updateCntlmConfig(filename string, credentials *credentialmanager.Credentials) error {
 
 	input, err := ioutil.ReadFile(filename)
 	if err != nil {
