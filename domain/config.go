@@ -47,13 +47,13 @@ func LoadJSON(path string) (*CntlmConfig, error) {
 }
 
 func SaveJSON(path string, config *CntlmConfig) error {
-	file, err := os.Open(path)
+	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	if err := json.NewEncoder(file).Encode(&config); err != nil {
+	if err := json.NewEncoder(file).Encode(config); err != nil {
 		return err
 	}
 

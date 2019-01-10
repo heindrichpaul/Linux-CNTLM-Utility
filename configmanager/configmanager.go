@@ -114,7 +114,7 @@ func SetUpUtility(config *domain.CntlmConfig) (err error) {
 		if strings.EqualFold(response, "Y") {
 			useClearTextPassword = true
 		}
-
+		config.PasswordProperties = &domain.Password{}
 		config.PasswordProperties.UseClearTextPassword = useClearTextPassword
 	}
 
