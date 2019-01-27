@@ -6,11 +6,11 @@ This utility can be used in a scenario to simplify the process of changing a use
 ##Table of Content
 * [Documentation](#documentation)
   * [Tool Requirements](#requirements)
-  * [Use](#use) . 
-    *[Change credentials](#change-credentials) . 
-    *[Switch Profiles](#switch-profiles) . 
-    *[Create Profile](#create-profile) . 
-  * [Config](#config)
+  * [Use](#use)  
+    *[Change credentials](#change-credentials)  
+    *[Switch Profiles](#switch-profiles)  
+    *[Create Profile](#create-profile)  
+  * [Config](#config)  
 ### <a name="documentaion">Documentation
 #### <a name="requirements"></a>Tool Requirements
 This utility was written to support the systemd linux distributions.
