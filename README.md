@@ -13,12 +13,12 @@ This utility can be used in a scenario to simplify the process of changing a use
   * [Config](#config)
 ### <a name="documentaion">Documentation
 #### <a name="requirements"></a>Tool Requirements
-This utility was written to support the systemd linux distrobutions.
+This utility was written to support the systemd linux distributions.
 
 #### <a name="use"></a>Use
 The utility was rewritten to make the process even easier. For this a menu was created as well as support for multiple profiles.
 
-The menu when initially run looks like follows: 
+The main menu when executing the utility is displayed below:
 
 ```
 ===============================================================================
@@ -36,7 +36,7 @@ Please select an action to perform:
 Enter text: 
 ```
 
-In the menu above you have three main options([Change credentials](#change-credentials), [Switch Profiles](#switch-profiles), [Create Profile](#create-profile)) and an exit option.
+In the menu above you have three main options ([Change credentials](#change-credentials), [Switch Profiles](#switch-profiles), [Create Profile](#create-profile)) and an exit option.
 
 ##### <a name="change-credentials"></a>Change credentials
 When selecting "Change credentials" the following prompts will appear:
@@ -57,7 +57,7 @@ When selecting "Switch Profiles" the following menu will appear:
 Please select the profile you wish to switch to:
 ```
 
-The default config file already contains a Home and Office place holder. If you wish to edit them you will have to edit the config file read the config section.
+The default config file already contains a Home and Office place holder. If you wish to edit them, you will have to edit the config file. For more clarity on how to edit the config file, read the config section.
 ##### <a name="create-profile"></a>Create Profile
 When selecting "Create Profile" the prompts below will appear to assist you in creating a new profile. This can also be done manually by editing the config file.
 
@@ -68,7 +68,7 @@ Please enter the location of the profile config:  /etc/cntlm.conf_demo
 
 When creating a profile replace ```demo``` with the name of your profile and ```/etc/cntlm.conf_demo``` with the path to the copy of the ```etc/cntlm.conf``` file that contains the modifications for the profile.
 
-It is important to not that the profile config file the path points to should be a valid cntlm config file with your extra modifications for the profile. When switching profiles the app will copy the profile conf over the existing one.
+It is important to note that the file referenced by the property ```profileFileLocation``` should be a valid cntlm config file with your extra modifications for the profile. When switching profiles the app will copy the profile config over the existing one.
 
 #### <a name="config"></a>Config
 If you wish to edit the file you will have to edit it at the default location ``` $HOME\.cntlm\config.json ``` with an editor with root permissions. The default location of the config file can be overridden by using the environmental variable ```CNTLM_UTILITY_CONFIG_PATH```.
