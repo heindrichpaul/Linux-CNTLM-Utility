@@ -1,5 +1,5 @@
 {
-    "cntlmConfigPath":"~/cntlm.conf",
+    "cntlmConfigPath":"/etc/cntlm.conf",
     "passwordProperties":
         {
             "useClearTextPassword":false
