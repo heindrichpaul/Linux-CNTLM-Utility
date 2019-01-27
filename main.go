@@ -100,7 +100,7 @@ func switchProfiles(config *domain.CntlmConfig, utility *utilitymanager.UtilityM
 	}
 
 	for id, profile := range profiles {
-		fmt.Printf("%d) %s", id, profile)
+		fmt.Printf("%d) %s\n", id, profile)
 	}
 	fmt.Print("Please select the profile you wish to switch to: ")
 	reader := bufio.NewReader(os.Stdin)
