@@ -94,7 +94,7 @@ func changeCredentials(config *domain.CntlmConfig, utility *utilitymanager.Utili
 }
 
 func switchProfiles(config *domain.CntlmConfig, utility *utilitymanager.UtilityManager) {
-	profiles := make(map[int]string, 0)
+	profiles := make(map[int]string)
 	for i, profile := range config.Profiles {
 		profiles[i] = profile.Name
 	}

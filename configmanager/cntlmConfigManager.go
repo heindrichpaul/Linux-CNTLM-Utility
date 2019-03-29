@@ -19,21 +19,21 @@ func replaceIfNeeded(line string, credentials *credentialmanager.Credentials) (n
 		newline = fmt.Sprintf("Username    %s", credentials.Username)
 	} else if strings.Contains(line, "Domain") && !strings.Contains(strings.Fields(line)[1], credentials.Domain) {
 		newline = fmt.Sprintf("Domain    %s", credentials.Domain)
-	} else if strings.Contains(line, "PassLM") && credentials.UseClearTextPassword == false {
+	} else if strings.Contains(line, "PassLM") && !credentials.UseClearTextPassword {
 		newline = credentials.PasswordHashes[0]
-	} else if strings.Contains(line, "PassLM") && credentials.UseClearTextPassword == true {
+	} else if strings.Contains(line, "PassLM") && credentials.UseClearTextPassword {
 		newline = "#" + line
-	} else if strings.Contains(line, "PassNTLMv2") && credentials.UseClearTextPassword == false {
+	} else if strings.Contains(line, "PassNTLMv2") && !credentials.UseClearTextPassword {
 		newline = credentials.PasswordHashes[2]
-	} else if strings.Contains(line, "PassNTLMv2") && credentials.UseClearTextPassword == true {
+	} else if strings.Contains(line, "PassNTLMv2") && credentials.UseClearTextPassword {
 		newline = "#" + line
-	} else if strings.Contains(line, "PassNT") && credentials.UseClearTextPassword == true {
+	} else if strings.Contains(line, "PassNT") && credentials.UseClearTextPassword {
 		newline = "#" + line
-	} else if strings.Contains(line, "PassNT") && credentials.UseClearTextPassword == false {
+	} else if strings.Contains(line, "PassNT") && !credentials.UseClearTextPassword {
 		newline = credentials.PasswordHashes[1]
-	} else if strings.Contains(line, "Password") && credentials.UseClearTextPassword == false {
+	} else if strings.Contains(line, "Password") && !credentials.UseClearTextPassword {
 		newline = fmt.Sprintf("#Password CLEARTEXT PASSWORD HAS BEEN REMOVED")
-	} else if strings.Contains(line, "Password") && credentials.UseClearTextPassword == true {
+	} else if strings.Contains(line, "Password") && credentials.UseClearTextPassword {
 		newline = fmt.Sprintf("Password    %s", credentials.Password)
 	} else {
 		newline = line

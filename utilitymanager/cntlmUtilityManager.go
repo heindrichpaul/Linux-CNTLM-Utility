@@ -95,5 +95,8 @@ func (z *UtilityManager) CreateProfile(name, profileLocationPath string) {
 	}
 
 	z.config.Profiles = append(z.config.Profiles, profile)
-	z.config.SaveConfig()
+	err := z.config.SaveConfig()
+	if err != nil {
+		log.Println("Error in saving the config file.")
+	}
 }

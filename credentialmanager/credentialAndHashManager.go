@@ -62,7 +62,7 @@ func GetCredentials() (domain string, username string, password string) {
 	}
 
 	passwordConfirmed := false
-	for passwordConfirmed == false {
+	for !passwordConfirmed {
 
 		fmt.Printf("Enter New Password: ")
 		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
