@@ -56,7 +56,7 @@ func (config *CntlmConfig) SaveConfig() error {
 
 	err := SaveJSON(configPath, config)
 	if err != nil {
-		log.Fatalf("an error occured while saving the config: %s", err.Error())
+		log.Fatalf("an error occurred while saving the config: %s", err.Error())
 	}
 	return err
 }

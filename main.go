@@ -84,7 +84,7 @@ func changeCredentials(config *domain.CntlmConfig, utility *utilitymanager.Utili
 
 	err := configmanager.UpdateCntlmConfig(config, credentials)
 	if err != nil {
-		log.Fatalln("An error occured during cntlm config update")
+		log.Fatalln("An error occurred during cntlm config update")
 	}
 
 	err = utility.RestartCntlm()

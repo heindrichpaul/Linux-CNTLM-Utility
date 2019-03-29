@@ -29,7 +29,7 @@ func (z *UtilityManager) SwitchProfile(name string) {
 			if strings.EqualFold(profile.Name, name) {
 				err := copy(profile.ProfileFileLocation, z.config.CntlmConfigPath)
 				if err != nil {
-					log.Fatalf("An error occured while switching profiles: %s\n", err.Error())
+					log.Fatalf("An error occurred while switching profiles: %s\n", err.Error())
 				}
 				return
 			}
@@ -97,6 +97,6 @@ func (z *UtilityManager) CreateProfile(name, profileLocationPath string) {
 	z.config.Profiles = append(z.config.Profiles, profile)
 	err := z.config.SaveConfig()
 	if err != nil {
-		log.Println("Error in saving the config file.")
+		log.Println("An error occurred while saving the config file.")
 	}
 }
