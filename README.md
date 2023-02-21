@@ -1,4 +1,4 @@
-# Linux CNTLM Utility [![Go Report Card](https://goreportcard.com/badge/github.com/heindrichpaul/Linux-CNTLM-Utility)](https://goreportcard.com/report/github.com/heindrichpaul/Linux-CNTLM-Utility) [![Build Status](https://www.travis-ci.com/heindrichpaul/Linux-CNTLM-Utility.svg?branch=master)](https://www.travis-ci.com/heindrichpaul/Linux-CNTLM-Utility)
+# Linux CNTLM Utility [![Go Report Card](https://goreportcard.com/badge/github.com/heindrichpaul/Linux-CNTLM-Utility)](https://goreportcard.com/report/github.com/heindrichpaul/Linux-CNTLM-Utility) [![Go](https://github.com/heindrichpaul/Linux-CNTLM-Utility/actions/workflows/go.yml/badge.svg)](https://github.com/heindrichpaul/Linux-CNTLM-Utility/actions/workflows/go.yml)
 
 This utility can be used in a scenario to simplify the process of changing a user's password in the user's CNTLM's config file where corporations require the regular change of a user's password.
 
